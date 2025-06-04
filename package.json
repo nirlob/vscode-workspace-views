@@ -4,22 +4,27 @@
 	"description": "Views for different folders in a multi-root workspace.",
 	"version": "0.0.1",
 	"publisher": "nirlob",
-	"private": true,
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/nirlob/workspace-views.git"
 	},
 	"engines": {
 		"vscode": "^1.73.0"
 	},
 	"categories": [
-		"Other"
+		"Visualization"
 	],
-	"activationEvents": [
-		"*"
-	],
+	"author": {
+        "email": "jfgs1609@gmail.com",
+        "name": "Jose Francisco Gonzalez",
+        "url": "https://github.com/nirlob"
+    },
 	"main": "./out/src/extension",
+	"keywords": [
+        "views",
+        "workspace"
+    ],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
@@ -29,14 +34,14 @@
 	"contributes": {
 		"configuration": {
 			"type": "object",
-			"title": "Basic Multi Root Sample",
+			"title": "Workspace Views",
 			"properties": {
-				"multiRootSample.statusColor": {
+				"workspaceViews.statusColor": {
 					"type": [
 						"string"
 					],
 					"default": "#FFFFFF",
-					"description": "Color to use for the status bar item. Can be set per workspace folder.",
+					"description": "Color to use for the status bar item",
 					"scope": "resource"
 				}
 			}

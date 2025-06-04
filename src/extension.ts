@@ -3,7 +3,7 @@
  *--------------------------------------------------------*/
 
 import { ExtensionContext, StatusBarAlignment, StatusBarItem, window, workspace, commands, QuickPickOptions, TabInputText, Uri, WorkspaceFoldersChangeEvent } from 'vscode';
-import { FolderView, Tab } from './folder-view';
+import { FolderView, Tab } from './interfaces';
 
 let actualFolderView: string;
 let statusBarItem: StatusBarItem;
