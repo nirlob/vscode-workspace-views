@@ -1,0 +1,1 @@
+- Change git repository when changed the folder

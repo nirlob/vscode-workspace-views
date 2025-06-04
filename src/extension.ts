@@ -2,53 +2,48 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { basename } from 'path';
-import { ExtensionContext, StatusBarAlignment, StatusBarItem, window, workspace, commands, QuickPickOptions, TabInputText } from 'vscode';
+import { ExtensionContext, StatusBarAlignment, StatusBarItem, window, workspace, commands, QuickPickOptions, TabInputText, Uri, WorkspaceFoldersChangeEvent } from 'vscode';
 import { FolderView, Tab } from './folder-view';
 
-export function activate(context: ExtensionContext) {
-	let actualFolderView = getLastFolderView(context);
-	console.log('actualFolderView', actualFolderView);
+let actualFolderView: string;
+let statusBarItem: StatusBarItem;
 
-	// commands.getCommands().then(value => console.log(value));
-	commands.executeCommand('workbench.action.closeAllEditors');
+export function activate(context: ExtensionContext) {
+	actualFolderView = getLastFolderView(context);
 
 	// Create a status bar item
 	const status = window.createStatusBarItem(StatusBarAlignment.Left, 1000000);
-	status.command = 'basic-multi-root-sample.showInfo';
+	status.command = 'workspace-views.onClick';
 	context.subscriptions.push(status);
+	statusBarItem = status;
 
 	// Click extension
-	context.subscriptions.push(commands.registerCommand('basic-multi-root-sample.showInfo', () => {
-		const options: QuickPickOptions = {placeHolder: 'Select option'};
-		const items: string[] = getWorkspaceFolders().filter(folder => folder !== actualFolderView);
-
-		if(items.length) {
-			window.showQuickPick(items, options).then(selection => {
-				if(selection){
-					window.showInformationMessage(selection);
-					saveActualFolderView(context, actualFolderView);
-					actualFolderView = selection;
-					context.workspaceState.update('actualView', actualFolderView);
-				}
-			});
-		}
+	context.subscriptions.push(commands.registerCommand('workspace-views.onClick', () => {
+		showSelectFolder(context);
 	}));
 
-	// Update status bar item based on events for multi root folder changes
-	context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => updateStatus(status)));
+	// Detect changes in workspace folders
+	context.subscriptions.push(workspace.onDidChangeWorkspaceFolders((event) => changedWorkspaceFolders(event, context)));
 
-	// Update status bar item based on events for configuration
-	context.subscriptions.push(workspace.onDidChangeConfiguration(() => updateStatus(status)));
+	updateStatusBarItem();
+	loadActualFolderView(context);
+}
 
-	// Update status bar item based on events around the active editor
-	context.subscriptions.push(window.onDidChangeActiveTextEditor(() => updateStatus(status)));
-	context.subscriptions.push(window.onDidChangeTextEditorViewColumn(() => updateStatus(status)));
-	context.subscriptions.push(workspace.onDidOpenTextDocument(() => updateStatus(status)));
-	context.subscriptions.push(workspace.onDidCloseTextDocument(() => updateStatus(status)));
+function showSelectFolder(context: ExtensionContext) {
+	const options: QuickPickOptions = {placeHolder: 'Select wowkspace folder'};
+	const items: string[] = getWorkspaceFolders().filter(folder => folder !== actualFolderView);
 
-	updateStatus(status);
-	loadFolderView(context, actualFolderView);
+	if(items.length) {
+		window.showQuickPick(items, options).then(selectedFolder => {
+			if(selectedFolder){
+				window.showInformationMessage(selectedFolder);
+				saveActualFolderView(context);
+				actualFolderView = selectedFolder;
+				context.workspaceState.update('last-folder-view', actualFolderView);
+				loadActualFolderView(context);
+			}
+		});
+	}
 }
 
 function getWorkspaceFolders(): string[] {
@@ -59,53 +54,8 @@ function getWorkspaceFolders(): string[] {
 	}
 }
 
-function updateStatus(status: StatusBarItem): void {
-	const info = getEditorInfo();
-	status.text = info ? info.text || '' : '';
-	status.tooltip = info ? info.tooltip : undefined;
-	status.color = info ? info.color : undefined;
-
-	if (info) {
-		status.show();
-	} else {
-		status.hide();
-	}
-}
-
-function getEditorInfo(): { text?: string; tooltip?: string; color?: string; } | null {
-	const editor = window.activeTextEditor;
-
-	// If no workspace is opened or just a single folder, we return without any status label
-	// because our extension only works when more than one folder is opened in a workspace.
-	if (!editor || !workspace.workspaceFolders || workspace.workspaceFolders.length < 2) {
-		return null;
-	}
-
-	let text: string | undefined;
-	let tooltip: string | undefined;
-	let color: string | undefined;
-
-	// If we have a file:// resource we resolve the WorkspaceFolder this file is from and update
-	// the status accordingly.
-	const resource = editor.document.uri;
-	if (resource.scheme === 'file') {
-		const folder = workspace.getWorkspaceFolder(resource);
-		if (!folder) {
-			text = `$(alert) <outside workspace> → ${basename(resource.fsPath)}`;
-		} else {
-			text = `$(file-submodule) ${basename(folder.uri.fsPath)} (${folder.index + 1} of ${workspace.workspaceFolders.length}) → $(file-code) ${basename(resource.fsPath)}`;
-			tooltip = resource.fsPath;
-
-			const multiRootConfigForResource = workspace.getConfiguration('multiRootSample', resource);
-			color = multiRootConfigForResource.get('statusColor');
-		}
-	}
-
-	return { text, tooltip, color };
-}
-
-function saveActualFolderView(context: ExtensionContext, actualFolderView: string) {
-	const foldersViews: FolderView[] = JSON.parse(context.workspaceState.get('views') || '[]');
+function saveActualFolderView(context: ExtensionContext) {
+	const foldersViews: FolderView[] = getFoldersViews(context);
 	let folderView: FolderView | undefined = foldersViews.find(folderView => folderView.name === actualFolderView);
 
 	if(!folderView) {
@@ -115,10 +65,7 @@ function saveActualFolderView(context: ExtensionContext, actualFolderView: strin
 		folderView.tabs = getOpenTabs();
 	}
 
-	context.workspaceState.update('views', JSON.stringify(foldersViews));
-
-	console.log('keys', context.workspaceState.keys());
-	console.log('views', context.workspaceState.get('views'));
+	context.workspaceState.update('folders-views', JSON.stringify(foldersViews));
 }
 
 function getOpenTabs(): Tab[] {
@@ -135,25 +82,60 @@ function getOpenTabs(): Tab[] {
 }
 
 function getLastFolderView(context: ExtensionContext): string {
-	const foldersViews: FolderView[] = JSON.parse(context.workspaceState.get('views') || '[]');
+	const foldersViews: FolderView[] = getFoldersViews(context);
 
-	return context.workspaceState.get('actualView') || 
+	return context.workspaceState.get('last-folder-view') || 
 		(foldersViews.length ? foldersViews[0].name : undefined) ||
 		getWorkspaceFolders()[0]; 
 }
 
-async function loadFolderView(context: ExtensionContext, actualFolderView: string) {
-	const foldersViews: FolderView[] = JSON.parse(context.workspaceState.get('views') || '[]');
-	// const folderView: FolderView = foldersViews.find(folderView => folderView.name === actualFolderView);
+function getFoldersViews(context: ExtensionContext): FolderView[] {
+	return JSON.parse(context.workspaceState.get('folders-views') || '[]');
+}
 
-	const filteredTextDocuments = window.visibleNotebookEditors;
-	//const filteredTextDocuments = workspace.textDocuments.filter(td => td.fileName === 'scratchFileName');
-	console.log('filteredTextDocuments', filteredTextDocuments);
-	for (const td of filteredTextDocuments) {
-		console.log('td =', td)
-  //  	await window.showTextDocument(td, { preview: true, preserveFocus: false });
-    //	await commands.executeCommand('workbench.action.closeActiveEditor');
-//    	await workspace.fs.delete(td.uri);
+function loadActualFolderView(context: ExtensionContext) {
+	const folderView: FolderView = getFoldersViews(context).find(folderView => folderView.name === actualFolderView)!;
+
+	commands.executeCommand('workbench.action.closeAllEditors');
+
+	if (folderView) {
+		folderView.tabs.forEach(tab => {
+			const uri = Uri.file(tab.uri);
+			commands.executeCommand('vscode.open', uri);
+		});
+	}
+}
+
+function changedWorkspaceFolders(event: WorkspaceFoldersChangeEvent, context: ExtensionContext) {
+	if(event.removed.length) {
+		const foldersViews: FolderView[] = getFoldersViews(context).filter(folderView => folderView.name !== event.removed[0].name);
+		context.workspaceState.update('folders-views', JSON.stringify(foldersViews));
+
+		if(getWorkspaceFolders().length < 2) {
+			updateStatusBarItem();
+		} else {
+			actualFolderView = foldersViews[0].name;
+			loadActualFolderView(context);
+		}
+	} else {
+		if(getWorkspaceFolders().length > 1) {
+			saveActualFolderView(context);
+			actualFolderView = event.added[0].name;
+			updateStatusBarItem();
+			loadActualFolderView(context);
+		}
+	}
+}
+
+function updateStatusBarItem() {
+	if (getWorkspaceFolders().length > 1) {
+		const multiRootConfigForResource = workspace.getConfiguration('workspaceViews');
+
+		statusBarItem.color = multiRootConfigForResource.get('statusColor') || '#F00';
+		statusBarItem.text = `$(file-submodule) ${actualFolderView}`;
+		statusBarItem.show();
+	} else {
+		statusBarItem.hide();
 	}
 }
 
