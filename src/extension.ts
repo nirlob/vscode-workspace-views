@@ -1,5 +1,6 @@
-import { ExtensionContext, StatusBarAlignment, StatusBarItem, window, workspace, commands, QuickPickOptions, TabInputText, Uri, WorkspaceFoldersChangeEvent } from 'vscode';
+import { ExtensionContext, StatusBarAlignment, StatusBarItem, window, workspace, commands, QuickPickOptions, extensions, TabInputText, Uri, WorkspaceFoldersChangeEvent } from 'vscode';
 import { FolderView, Tab } from './interfaces';
+import { API as GitAPI, GitExtension, APIState } from './typings/git'; 
 
 let actualFolderView: string;
 let statusBarItem: StatusBarItem;
@@ -37,6 +38,10 @@ export function deactivate() {}
 function showSelectFolder(context: ExtensionContext) {
 	const options: QuickPickOptions = {placeHolder: 'Select wowkspace folder'};
 	const items: string[] = getWorkspaceFolders().filter(folder => folder !== actualFolderView);
+
+	const gitExtension = extensions.getExtension<GitExtension>('vscode.git')?.exports;
+	const api = gitExtension?.getAPI(1);
+	console.log('repositories', api?.repositories);
 
 	if(items.length) {
 		window.showQuickPick(items, options).then(selectedFolder => {
