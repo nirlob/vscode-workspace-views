@@ -1,2 +1,3 @@
 - Change view when open file from other folder (only file, not subfolder)
+- Save open tabs of other folders in the actual open view when change view
 - Save when close vscode

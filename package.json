@@ -44,10 +44,15 @@
 					"default": "#FFFFFF",
 					"description": "Color to use for the status bar item in Hex format (e.g., #FF0000 for red)."
 				},
+				"workspaceViews.saveTabsOfOtherFolders": {
+					"type": "boolean",
+					"default": "true",
+					"description": "Save open tabs of other folders in the actual open view when change view."
+				},
 				"workspaceViews.collapseFoldersOnChange": {
 					"type": "boolean",
 					"default": "true",
-					"description": "Collapse the explorer folders when changing the active folder view."
+					"description": "Collapse the explorer folders when changing the active folder view and open selected."
 				}
 			}
 		}

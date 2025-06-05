@@ -125,7 +125,7 @@ function executeLoadCommands(folderView: FolderView) {
   if (folderView) {
     const config = workspace.getConfiguration('workspaceViews');
 
-    if (config.get('collapseFoldersOnChange') === 'true') {
+    if (config.get('collapseFoldersOnChange')) {
       commands.executeCommand('workbench.files.action.collapseExplorerFolders');
       commands.executeCommand('revealInExplorer', Uri.file(folderView.path));
       commands.executeCommand('list.expand');
