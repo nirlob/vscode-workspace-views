@@ -1,1 +1,2 @@
-- Change git repository when changed the folder
+- Change view when open file from other folder (only file, not subfolder)
+- Save when close vscode
