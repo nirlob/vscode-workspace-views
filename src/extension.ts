@@ -32,6 +32,8 @@ export function activate(context: ExtensionContext) {
 	loadActualFolderView(context);
 }
 
+export function deactivate() {}
+
 function showSelectFolder(context: ExtensionContext) {
 	const options: QuickPickOptions = {placeHolder: 'Select wowkspace folder'};
 	const items: string[] = getWorkspaceFolders().filter(folder => folder !== actualFolderView);
@@ -119,10 +121,13 @@ function executeLoadCommands(folderView: FolderView) {
 
 	// TO-DO: Execute if config is true
 	if (folderView) {
-		commands.executeCommand('workbench.files.action.collapseExplorerFolders');
-		commands.executeCommand("revealInExplorer", Uri.file(folderView.path));
-		commands.executeCommand('list.expand');
-		// commands.executeCommand('workbench.action.revealFileInExplorer');
+		const config = workspace.getConfiguration('workspaceViews');
+
+		if(config.get('collapseFoldersOnChange') === 'true') {
+			commands.executeCommand('workbench.files.action.collapseExplorerFolders');
+			commands.executeCommand("revealInExplorer", Uri.file(folderView.path));
+			commands.executeCommand('list.expand');
+		}
 	}
 }
 
@@ -150,9 +155,9 @@ function changedWorkspaceFolders(event: WorkspaceFoldersChangeEvent, context: Ex
 
 function updateStatusBarItem() {
 	if (getWorkspaceFolders().length > 1) {
-		const multiRootConfigForResource = workspace.getConfiguration('workspaceViews');
+		const config = workspace.getConfiguration('workspaceViews');
 
-		statusBarItem.color = multiRootConfigForResource.get('statusColor');
+		statusBarItem.color = config.get('statusColor');
 		statusBarItem.text = `$(file-submodule) ${actualFolderView}`;
 		statusBarItem.show();
 	} else {

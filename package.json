@@ -44,7 +44,7 @@
 					"default": "#FFFFFF",
 					"description": "Color to use for the status bar item in Hex format (e.g., #FF0000 for red)."
 				},
-				"workspaceViews.collapseOnChange": {
+				"workspaceViews.collapseFoldersOnChange": {
 					"type": "boolean",
 					"default": "true",
 					"description": "Collapse the explorer folders when changing the active folder view."
