@@ -1,10 +1,17 @@
+import { Uri } from "vscode";
+
 export interface FolderView {
 	name: string;
-	path: string;
+	uri: Uri;
 	tabs: Tab[];
 }
 
 export interface Tab {
 	label: string;
-	path: string;
+	uri: Uri;
+}
+
+export interface FolderWorkspace {
+	name: string;
+	uri: Uri;
 }

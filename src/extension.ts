@@ -1,11 +1,12 @@
 import { ExtensionContext, StatusBarAlignment, StatusBarItem, window, workspace, commands, QuickPickOptions, Uri, WorkspaceFoldersChangeEvent, TabInputText } from 'vscode';
-import { FolderView, Tab } from './interfaces';
+import { FolderView, FolderWorkspace, Tab } from './interfaces';
 
 let actualFolderView: string;
 let statusBarItem: StatusBarItem;
+const config = workspace.getConfiguration('workspaceViews');
 
 export function activate(context: ExtensionContext) {
-  actualFolderView = getLastFolderView(context);
+  actualFolderView = getLastFolderViewName(context);
 
   // Create a status bar item
   const status = window.createStatusBarItem(StatusBarAlignment.Left, 1000000);
@@ -38,12 +39,22 @@ export function activate(context: ExtensionContext) {
 
 export function deactivate() {}
 
+function getWorkspaceFolders(): FolderWorkspace[] {
+  return workspace.workspaceFolders
+    ? workspace.workspaceFolders.map(workspaceFolder => {
+        return { name: workspaceFolder.name, uri: workspaceFolder.uri };
+      })
+    : [];
+}
+
 function showSelectFolder(context: ExtensionContext) {
   const options: QuickPickOptions = { placeHolder: 'Select wowkspace folder' };
-  const items: string[] = getWorkspaceFolders().filter(folder => folder !== actualFolderView);
+  const workspaceFoldersNames: string[] = workspace.workspaceFolders
+    ? workspace.workspaceFolders.filter(folder => folder.name !== actualFolderView).map(folder => folder.name)
+    : [];
 
-  if (items.length) {
-    window.showQuickPick(items, options).then(selectedFolder => {
+  if (workspaceFoldersNames.length) {
+    window.showQuickPick(workspaceFoldersNames, options).then(selectedFolder => {
       if (selectedFolder) {
         saveActualFolderView(context);
         actualFolderView = selectedFolder;
@@ -55,21 +66,17 @@ function showSelectFolder(context: ExtensionContext) {
   }
 }
 
-function getWorkspaceFolders(): string[] {
-  if (!workspace.workspaceFolders || workspace.workspaceFolders.length < 2) {
-    return [];
-  } else {
-    return workspace.workspaceFolders.map(folder => folder.name);
-  }
-}
-
 function saveActualFolderView(context: ExtensionContext) {
   const foldersViews: FolderView[] = getFoldersViews(context);
   let folderView: FolderView | undefined = foldersViews.find(folderView => folderView.name === actualFolderView);
 
   if (!folderView) {
-    folderView = { name: actualFolderView, path: getWorkspaceFolderUri(actualFolderView), tabs: getOpenTabs() };
-    foldersViews.push(folderView);
+    const workspaceFolder = getWorkspaceFolderByName(actualFolderView);
+
+    if (workspaceFolder) {
+      folderView = { name: actualFolderView, uri: workspaceFolder.uri, tabs: getOpenTabs() };
+      foldersViews.push(folderView);
+    }
   } else {
     folderView.tabs = getOpenTabs();
   }
@@ -77,27 +84,48 @@ function saveActualFolderView(context: ExtensionContext) {
   context.workspaceState.update('folders-views', JSON.stringify(foldersViews));
 }
 
-function getWorkspaceFolderUri(folderName: string): string {
-  return workspace.workspaceFolders?.find(workspaceFolder => workspaceFolder.name === folderName)?.uri.path || '';
+function getWorkspaceFolderByName(folderName: string): FolderWorkspace | undefined {
+  const workspaceFolders = workspace.workspaceFolders;
+  let result!: FolderWorkspace | undefined;
+
+  if (workspaceFolders) {
+    const workspaceFolder = workspaceFolders.find(workspaceFolder => workspaceFolder.name === folderName);
+
+    if (workspaceFolder) {
+      result = { name: workspaceFolder.name, uri: workspaceFolder.uri };
+    }
+  }
+
+  return result;
 }
 
 function getOpenTabs(): Tab[] {
-  return window.tabGroups.all.flatMap(group =>
+  let openTabs: Tab[] = [];
+  const saveTabsOfOtherFolders: boolean = config.get('saveTabsOfOtherFolders') || true;
+
+  openTabs = window.tabGroups.all.flatMap(group =>
     group.tabs
       .map(tab => {
+        if (saveTabsOfOtherFolders) {
+          console.log(tab);
+        }
+
         if (tab.input instanceof TabInputText) {
-          return { label: tab.label, path: (tab.input as TabInputText).uri.path } as Tab;
+          return { label: tab.label, uri: (tab.input as TabInputText).uri } as Tab;
         }
         return undefined;
       })
       .filter((value): value is Tab => value !== undefined)
   );
+
+  return openTabs;
 }
 
-function getLastFolderView(context: ExtensionContext): string {
+function getLastFolderViewName(context: ExtensionContext): string {
   const foldersViews: FolderView[] = getFoldersViews(context);
+  const workspaceFolderName: string = getWorkspaceFolders().length ? getWorkspaceFolders()[0].name : '';
 
-  return context.workspaceState.get('last-folder-view') || (foldersViews.length ? foldersViews[0].name : undefined) || getWorkspaceFolders()[0];
+  return context.workspaceState.get('last-folder-view') || (foldersViews.length ? foldersViews[0].name : undefined) || workspaceFolderName;
 }
 
 function getFoldersViews(context: ExtensionContext): FolderView[] {
@@ -111,25 +139,25 @@ function loadActualFolderView(context: ExtensionContext) {
 
   if (folderView) {
     folderView.tabs.forEach(tab => {
-      const uri = Uri.file(tab.path);
+      const uri = Uri.file(tab.uri.path);
       commands.executeCommand('vscode.open', uri);
     });
   }
 }
 
 function executeLoadCommands(folderView: FolderView) {
+  const uri = folderView ? folderView.uri : workspace.workspaceFolders?.find(workspaceFolder => workspaceFolder.name === actualFolderView)?.uri;
+
   // Close all tabs
   commands.executeCommand('workbench.action.closeAllEditors');
 
-  // TO-DO: Execute if config is true
-  if (folderView) {
-    const config = workspace.getConfiguration('workspaceViews');
+  if (config.get('collapseFoldersOnChange')) {
+    commands.executeCommand('workbench.files.action.collapseExplorerFolders');
+  }
 
-    if (config.get('collapseFoldersOnChange')) {
-      commands.executeCommand('workbench.files.action.collapseExplorerFolders');
-      commands.executeCommand('revealInExplorer', Uri.file(folderView.path));
-      commands.executeCommand('list.expand');
-    }
+  if (uri) {
+    commands.executeCommand('revealInExplorer', uri);
+    commands.executeCommand('list.expand');
   }
 }
 
@@ -156,8 +184,6 @@ function changedWorkspaceFolders(event: WorkspaceFoldersChangeEvent, context: Ex
 
 function updateStatusBarItem() {
   if (getWorkspaceFolders().length > 1) {
-    const config = workspace.getConfiguration('workspaceViews');
-
     statusBarItem.color = config.get('statusColor');
     statusBarItem.text = `$(file-submodule) ${actualFolderView}`;
     statusBarItem.show();
