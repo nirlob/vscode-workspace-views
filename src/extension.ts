@@ -1,4 +1,4 @@
-import { ExtensionContext, StatusBarAlignment, StatusBarItem, window, workspace, commands, QuickPickOptions, Uri, WorkspaceFoldersChangeEvent, TabInputText } from 'vscode';
+import { ExtensionContext, StatusBarAlignment, StatusBarItem, window, workspace, commands, QuickPickOptions, Uri, WorkspaceFoldersChangeEvent, TabInputText, TextDocumentChangeEvent } from 'vscode';
 import { FolderView, FolderWorkspace, Tab } from './interfaces';
 
 let actualFolderView: string;
@@ -9,10 +9,9 @@ export function activate(context: ExtensionContext) {
   actualFolderView = getLastFolderViewName(context);
 
   // Create a status bar item
-  const status = window.createStatusBarItem(StatusBarAlignment.Left, 1000000);
-  status.command = 'workspace-views.onClick';
-  context.subscriptions.push(status);
-  statusBarItem = status;
+  statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 1000000);
+  statusBarItem.command = 'workspace-views.onClick';
+  context.subscriptions.push(statusBarItem);
 
   // Click extension
   context.subscriptions.push(
@@ -32,6 +31,8 @@ export function activate(context: ExtensionContext) {
       }
     })
   );
+
+  context.subscriptions.push(workspace.onDidChangeTextDocument((event: TextDocumentChangeEvent) => changeViewOnClick(event)));
 
   updateStatusBarItem();
   loadActualFolderView(context);
@@ -191,3 +192,14 @@ function updateStatusBarItem() {
     statusBarItem.hide();
   }
 }
+
+function changeViewOnClick(file: TextDocumentChangeEvent) {
+  const changeViewWhenClickFileOfOtherFolder: boolean = config.get('changeViewWhenClickFileOfOtherFolder') || true;
+
+  if (changeViewWhenClickFileOfOtherFolder) {
+    if (file.document.uri.scheme === 'file') {
+      console.log('file', file);
+    }
+  }
+}
+

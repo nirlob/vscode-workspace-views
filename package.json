@@ -27,7 +27,7 @@
     ],
 	"activationEvents": [
         "onStartupFinished"
-    ],
+	],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
@@ -48,6 +48,11 @@
 					"type": "boolean",
 					"default": "true",
 					"description": "Save open tabs of other folders in the actual open view when change view."
+				},
+				"workspaceViews.changeViewWhenClickFileOfOtherFolder": {
+					"type": "boolean",
+					"default": "true",
+					"description": "Change automatically the view when click on other folder file."
 				},
 				"workspaceViews.collapseFoldersOnChange": {
 					"type": "boolean",
