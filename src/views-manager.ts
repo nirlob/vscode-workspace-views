@@ -27,7 +27,7 @@ export class ViewsManager {
     this.actualFolderView = this.getLastFolderView();
     this.config = workspace.getConfiguration(consts.CONFIG_SECTION);
 
-    // Create a status bar item.
+    // Create a status bar item
     this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 1000000);
     this.statusBarItem.command = consts.STATUS_BAR_COMMAND_CLICK;
     context.subscriptions.push(this.statusBarItem);
