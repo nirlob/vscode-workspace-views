@@ -39,7 +39,7 @@
 			"type": "object",
 			"title": "Workspace Views",
 			"properties": {
-				"workspaceViews.statusColor": {
+				"workspaceViews.statusBarItemColor": {
 					"type": "string",
 					"default": "#FFFFFF",
 					"description": "Color to use for the status bar item in Hex format (e.g., #FF0000 for red)."
