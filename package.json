@@ -1,76 +1,76 @@
 {
-	"name": "vscode-workspace-views",
-	"displayName": "Workspace views",
-	"description": "Views for different folders in a multi-root workspace.",
-	"version": "0.0.1",
-	"publisher": "nirlob",
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/nirlob/workspace-views.git"
-	},
-	"engines": {
-		"vscode": "^1.73.0"
-	},
-	"categories": [
-		"Visualization"
-	],
-	"author": {
-		"email": "jfgs1609@outlook.com",
-		"name": "Jose Francisco Gonzalez",
-		"url": "https://github.com/nirlob"
-	},
-	"main": "./out/src/extension",
-	"keywords": [
-		"views",
-		"workspace"
-	],
-	"activationEvents": [
-		"onStartupFinished"
-	],
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"lint": "eslint",
-		"watch": "tsc -watch -p ./",
-		"deploy": "vsce publish --yarn"
-	},
-	"contributes": {
-		"configuration": {
-			"type": "object",
-			"title": "Workspace Views",
-			"properties": {
-				"workspaceViews.statusBarItemColor": {
-					"type": "string",
-					"default": "#FFFFFF",
-					"description": "Color to use for the status bar item in Hex format (e.g., #FF0000 for red)."
-				},
-				"workspaceViews.saveTabsOfOtherFolders": {
-					"type": "boolean",
-					"default": "true",
-					"description": "Save open tabs of other folders in the actual open view when change view."
-				},
-				"workspaceViews.changeViewWhenClickFileOfOtherFolder": {
-					"type": "boolean",
-					"default": "true",
-					"description": "Change automatically the view when click on other folder file."
-				},
-				"workspaceViews.collapseFoldersOnChange": {
-					"type": "boolean",
-					"default": "true",
-					"description": "Collapse the explorer folders when changing the active folder view and open selected."
-				}
-			}
-		}
-	},
-	"devDependencies": {
-		"@eslint/js": "^9.13.0",
-		"@stylistic/eslint-plugin": "^2.9.0",
-		"@types/node": "^20",
-		"@types/vscode": "^1.73.0",
-		"@vscode/vsce": "^3.5.0",
-		"eslint": "^9.13.0",
-		"typescript": "^5.8.2",
-		"typescript-eslint": "^8.26.0"
-	}
+  "name": "vscode-workspace-views",
+  "displayName": "Workspace views",
+  "description": "Views for different folders in a multi-root workspace.",
+  "version": "0.0.1",
+  "publisher": "nirlob",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nirlob/workspace-views.git"
+  },
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "categories": [
+    "Visualization"
+  ],
+  "author": {
+    "email": "jfgs1609@outlook.com",
+    "name": "Jose Francisco Gonzalez",
+    "url": "https://github.com/nirlob"
+  },
+  "main": "./out/src/extension",
+  "keywords": [
+    "views",
+    "workspace"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint",
+    "watch": "tsc -watch -p ./",
+    "deploy": "vsce publish --yarn"
+  },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Workspace Views",
+      "properties": {
+        "workspaceViews.statusBarItemColor": {
+          "type": "string",
+          "default": "#FFFFFF",
+          "description": "Color to use for the status bar item in Hex format (e.g., #FF0000 for red)."
+        },
+        "workspaceViews.saveTabsOfOtherFolders": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Save open tabs of other folders in the actual open view when change view."
+        },
+        "workspaceViews.changeViewWhenClickFileOfOtherFolder": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Change automatically the view when click on other folder file."
+        },
+        "workspaceViews.collapseFoldersOnChange": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Collapse the explorer folders when changing the active folder view and open selected."
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@stylistic/eslint-plugin": "^2.9.0",
+    "@types/node": "^20",
+    "@types/vscode": "^1.73.0",
+    "@vscode/vsce": "^3.5.0",
+    "eslint": "^9.13.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.0"
+  }
 }
