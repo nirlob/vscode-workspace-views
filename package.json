@@ -16,23 +16,24 @@
 		"Visualization"
 	],
 	"author": {
-        "email": "jfgs1609@outlook.com",
-        "name": "Jose Francisco Gonzalez",
-        "url": "https://github.com/nirlob"
-    },
+		"email": "jfgs1609@outlook.com",
+		"name": "Jose Francisco Gonzalez",
+		"url": "https://github.com/nirlob"
+	},
 	"main": "./out/src/extension",
 	"keywords": [
-        "views",
-        "workspace"
-    ],
+		"views",
+		"workspace"
+	],
 	"activationEvents": [
-        "onStartupFinished"
+		"onStartupFinished"
 	],
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"lint": "eslint",
-		"watch": "tsc -watch -p ./"
+		"watch": "tsc -watch -p ./",
+		"deploy": "vsce publish --yarn"
 	},
 	"contributes": {
 		"configuration": {
@@ -67,6 +68,7 @@
 		"@stylistic/eslint-plugin": "^2.9.0",
 		"@types/node": "^20",
 		"@types/vscode": "^1.73.0",
+		"@vscode/vsce": "^3.5.0",
 		"eslint": "^9.13.0",
 		"typescript": "^5.8.2",
 		"typescript-eslint": "^8.26.0"
