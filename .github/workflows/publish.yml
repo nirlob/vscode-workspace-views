@@ -1,13 +1,8 @@
 name: Publish
 
 on:
-  push:
-    branches:
-      - main
-  workflow_run:
-    workflows: [ESLint]
-    types:
-      - completed
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -29,3 +24,13 @@ jobs:
       run: npm run deploy
       env:
         VSCE_PAT: ${{ secrets.VSC_WVIEWS_SECRET }}
+
+    - name: Bump version
+      run: npm version patch
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v1
+      with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Bump version
+          title: Bump version
