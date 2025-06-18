@@ -33,7 +33,7 @@
     "compile": "tsc -p ./",
     "lint": "eslint",
     "watch": "tsc -watch -p ./",
-    "deploy": "vsce publish --yarn --pre-release"
+    "deploy": "vsce publish --pre-release"
   },
   "contributes": {
     "configuration": {
