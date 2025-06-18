@@ -3,7 +3,7 @@
 	"displayName": "Workspace views",
 	"description": "Views for different folders in a multi-root workspace.",
 	"version": "0.0.1",
-	"publisher": "nirlob",
+	"publisher": "bievel",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -16,7 +16,7 @@
 		"Visualization"
 	],
 	"author": {
-        "email": "jfgs1609@gmail.com",
+        "email": "jfgs1609@outlook.com",
         "name": "Jose Francisco Gonzalez",
         "url": "https://github.com/nirlob"
     },
