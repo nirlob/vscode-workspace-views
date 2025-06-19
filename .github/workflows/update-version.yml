@@ -4,11 +4,18 @@ jobs:
   createPullRequest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
+
       - name: Bump version
         run: npm version patch
+
+      - name: Create commits
+        run: |
+          git config user.name 'Jose Francisco González'
+          git config user.email 'nirlob@users.noreply.github.com'
+
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v1
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Bump version
