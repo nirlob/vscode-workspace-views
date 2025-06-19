@@ -15,7 +15,7 @@ jobs:
 
       - name: Get latest tag
         id: get_tag
-        run: echo "tag=$(git -v)" >> "$GITHUB_OUTPUT"
+        run: echo "tag=$(git describe --tags)" >> "$GITHUB_OUTPUT"
 
       - name: Update package.json version
         run: |
