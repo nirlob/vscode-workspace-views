@@ -15,12 +15,11 @@ jobs:
 
       - name: Get latest tag
         id: get_tag
-        run: |
-          echo "Tag"
-          echo "tag='git describe --tags --abbrev=0'" >> "$GITHUB_OUTPUT"
+        run: echo "tag='git describe --tags --abbrev=0'" >> "$GITHUB_OUTPUT"
 
       - name: Update package.json version
         run: |
+          echo ver ${{ steps.get_tag.outputs.tag }}
           tag_version=${{ steps.get_tag.outputs.tag }}
           if [[ $tag_version == v* ]]; then
             tag_version="${tag_version#v}"
