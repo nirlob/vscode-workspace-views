@@ -31,7 +31,24 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       - name: Print
         run: |
-          echo "previousTag: ${{ steps.previoustag.outputs.tag#v }}"
+          echo "previousTag: ${{ steps.previoustag.outputs.tag }}"
           echo "milestone: ${{ steps.semvers.outputs.patch }}"
           echo "minor: ${{ steps.semvers.outputs.minor }}"
-          
+     
+      - name: Update package.json version
+        run: |
+          tag_version=${{ steps.semvers.outputs.minor }}
+          if [[ $tag_version == v* ]]; then
+            tag_version="${tag_version#v}"
+          fi
+          jq ".version = \"$tag_version\"" package.json > package.tmp.json && mv package.tmp.json package.json
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "nirlob"
+          git config --global user.email "nirlob@users.noreply.github.com"
+          git add package.json
+#          git commit -m "chore: update package.json version to match tag ${{ steps.get_tag.outputs.tag }}"
+#          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
