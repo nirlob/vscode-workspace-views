@@ -17,7 +17,7 @@ jobs:
         id: get_tag
         run: |
           echo "Tag"
-          echo $(git describe --tags --abbrev=0)
+          echo ${{ git describe --tags --abbrev=0 }}
           echo "tag='$(git describe --tags --abbrev=0)'" >> $GITHUB_OUTPUT
 
       - name: Update package.json version
@@ -30,10 +30,10 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "nirlob"
+          git config --global user.email "nirlob@users.noreply.github.com"
           git add package.json
-          git commit -m "chore: update package.json version to match tag ${{ steps.get_tag.outputs.tag }}"
-          git push
+#          git commit -m "chore: update package.json version to match tag ${{ steps.get_tag.outputs.tag }}"
+#          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
