@@ -6,7 +6,8 @@
 		"outDir": "out",
 		"sourceMap": true,
 		"rootDir": ".",
-		"strict": true
+		"strict": true,
+		"forceConsistentCasingInFileNames": true
 	},
 	"exclude": ["node_modules", ".vscode-test"]
 }
