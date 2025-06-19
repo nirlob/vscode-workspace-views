@@ -2,10 +2,6 @@ name: Update release in package.json
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'New version (e.g., 1.2.3)'
-        required: true
   push:
     tags:
       - 'v*.*.*'
