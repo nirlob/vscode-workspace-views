@@ -31,7 +31,7 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       - name: Print
         run: |
-          echo "previousTag: ${{ steps.previoustag.outputs.tag }}"
+          echo "previousTag: ${{ steps.previoustag.outputs.tag#v }}"
           echo "milestone: ${{ steps.semvers.outputs.patch }}"
           echo "minor: ${{ steps.semvers.outputs.minor }}"
           
