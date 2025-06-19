@@ -17,7 +17,7 @@ jobs:
         id: get_tag
         run: |
           echo "Tag"
-          echo $(git describe --tags --abbrev=0)'"
+          echo $(git describe --tags --abbrev=0)
           echo "tag='$(git describe --tags --abbrev=0)'" >> $GITHUB_OUTPUT
 
       - name: Update package.json version
