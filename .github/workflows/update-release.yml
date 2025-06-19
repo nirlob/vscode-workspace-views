@@ -18,8 +18,8 @@ jobs:
         shell: sh
         run: |
           echo "Tag"
-          git describe --tags --abbrev=0
-          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+          echo git describe --tags --abbrev=0
+          echo "tag='$(git describe --tags --abbrev=0)'" >> $GITHUB_OUTPUT
 
       - name: Update package.json version
         run: |
