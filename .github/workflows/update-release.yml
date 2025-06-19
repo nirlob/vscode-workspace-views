@@ -13,15 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set env
-        run: echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
-      - name: Test
-        run: |
-          echo ${{github.ref_name}}
-          echo $RELEASE_VERSION
-          echo ${{ env.GIT_TAG }}
-          echo ${{github.ref_name}}
-
       - name: Get latest tag
         id: get_tag
         run: echo "tag=$(echo ${GITHUB_REF:10})" >> $GITHUB_OUTPUT
