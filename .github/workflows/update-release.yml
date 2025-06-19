@@ -1,42 +1,35 @@
 name: Update package.json Version from Latest Tag
 
 on:
-  workflow_dispatch:
   push:
     tags:
-      - 'v*.*.*'
+      - '*'
 
 jobs:
   update-version:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Get latest tag
         id: get_tag
-        run: |
-          # Get the latest tag (assuming format vX.Y.Z)
-          TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
-          echo "Latest tag: $TAG"
-          # Remove the 'v' prefix
-          VERSION="${TAG#v}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
       - name: Update package.json version
         run: |
-          VERSION=${{ steps.get_tag.outputs.version }}
-          echo "Setting version to $VERSION"
-          # Update the version in package.json
-          npm version --no-git-tag-version $VERSION
+          tag_version=${{ steps.get_tag.outputs.tag }}
+          if [[ $tag_version == v* ]]; then
+            tag_version="${tag_version#v}"
+          fi
+          jq ".version = \"$tag_version\"" package.json > package.tmp.json && mv package.tmp.json package.json
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json || true
-          git commit -m "chore: update package.json version to match tag" || exit 0
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore: update package.json version to match tag ${{ steps.get_tag.outputs.tag }}"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
