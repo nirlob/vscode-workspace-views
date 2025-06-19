@@ -4,7 +4,7 @@ import { ViewsManager } from './views-manager';
 let viewsManager: ViewsManager;
 
 export function activate(context: ExtensionContext) {
-  console.log('Congratulations, your extension "vscode-views" is now active!');
+  console.log('Congratulations, your extensio "vscode-views" is now active!');
   viewsManager = new ViewsManager(context);
 }
 
