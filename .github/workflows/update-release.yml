@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'
 
 jobs:
   update-release:
@@ -15,7 +15,7 @@ jobs:
 
       - name: Get latest tag
         id: get_tag
-        run: echo "tag=$(git describe --tags)" >> "$GITHUB_OUTPUT"
+        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
       - name: Update package.json version
         run: |
