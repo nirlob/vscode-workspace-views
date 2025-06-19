@@ -1,6 +1,7 @@
 name: Update package.json Version from Latest Tag
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
