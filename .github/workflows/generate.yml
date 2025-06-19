@@ -31,3 +31,6 @@ jobs:
           title: ${{ steps.semvers.outputs.patch }}
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Print
+        run: |
+          echo "previousTag: ${{ steps.previoustag.outputs.tag }}"
