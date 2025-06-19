@@ -1,0 +1,39 @@
+name: Update package.json version from latest tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version (e.g., 1.2.3)'
+        required: true
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from Git tag
+        id: extract_tag
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/}"
+          # Optionally remove a leading 'v' (e.g. v1.2.3 → 1.2.3)
+          TAG_VERSION="${TAG_VERSION#v}"
+          echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set package.json version
+        run: |
+          VERSION="${{ steps.extract_tag.outputs.version }}"
+          # Update version in package.json using jq
+          jq --arg v "$VERSION" '.version=$v' package.json > package.json.tmp && mv package.json.tmp package.json
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore: update package.json version to ${{ steps.extract_tag.outputs.version }} from tag"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
