@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - 'v*.*.*'
+      - '**'
 
 jobs:
   update-release:
@@ -20,6 +20,7 @@ jobs:
           echo ${{github.ref_name}}
           echo $RELEASE_VERSION
           echo ${{ env.GIT_TAG }}
+          echo ${{github.ref_name}}
 
       - name: Get latest tag
         id: get_tag
