@@ -2,7 +2,7 @@
   "name": "vscode-workspace-views",
   "displayName": "Workspace views",
   "description": "Views for different folders in a multi-root workspace.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "bievel",
   "license": "MIT",
   "repository": {
