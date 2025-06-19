@@ -34,3 +34,6 @@ jobs:
       - name: Print
         run: |
           echo "previousTag: ${{ steps.previoustag.outputs.tag }}"
+          echo "milestone: ${{ steps.semvers.outputs.patch }}"
+          echo "minor: ${{ steps.semvers.outputs.minor }}"
+          
