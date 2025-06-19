@@ -1,7 +1,7 @@
 name: Update release in package.json
 
 on:
-  workflow_dispatch:
+ # workflow_dispatch:
   push:
     tags:
       - 'v*.*.*'
