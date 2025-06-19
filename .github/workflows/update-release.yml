@@ -19,7 +19,7 @@ jobs:
 
       - name: Update package.json version
         run: |
-          echo ver ${{ steps.get_tag.outputs.tag }}
+          echo "ver $steps.get_tag.outputs.tag"
           tag_version=${{ steps.get_tag.outputs.tag }}
           if [[ $tag_version == v* ]]; then
             tag_version="${tag_version#v}"
