@@ -44,8 +44,8 @@ export class ViewsManager {
 
     // Detect changes in settings
     context.subscriptions.push(
-      workspace.onDidChangeConfiguration(event => {
-        if (event.affectsConfiguration(consts.CONFIG_SECTION + '.' + consts.CONFIG_STATUSBAR_ITEM_COLOR)) {
+      workspace.onDidChangeConfiguration(configuration => {
+        if (configuration.affectsConfiguration(consts.CONFIG_SECTION + '.' + consts.CONFIG_STATUSBAR_ITEM_COLOR)) {
           this.updateStatusBarItem();
         }
       })
