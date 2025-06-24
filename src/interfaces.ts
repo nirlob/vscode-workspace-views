@@ -9,4 +9,5 @@ export interface FolderView {
 export interface Tab {
 	label: string;
 	uri: Uri;
+	active: boolean;
 }

@@ -5,7 +5,9 @@ import {
   StatusBarAlignment,
   StatusBarItem,
   TabInputText,
+  TextDocument,
   TextDocumentChangeEvent,
+  TextEditor,
   Uri,
   window,
   workspace,
@@ -45,13 +47,18 @@ export class ViewsManager {
     // Detect changes in settings
     context.subscriptions.push(
       workspace.onDidChangeConfiguration(configuration => {
+        if (configuration.affectsConfiguration(consts.CONFIG_SECTION)) {
+          this.config = workspace.getConfiguration(consts.CONFIG_SECTION);
+        }
+
         if (configuration.affectsConfiguration(consts.CONFIG_SECTION + '.' + consts.CONFIG_STATUSBAR_ITEM_COLOR)) {
           this.updateStatusBarItem();
         }
       })
     );
 
-    // context.subscriptions.push(workspace.onDidChangeTextDocument((event: TextDocumentChangeEvent) => this.changeViewOnClick(event)));
+    // context.subscriptions.push(workspace.onDidChangeTextDocument((document: TextDocumentChangeEvent) => this.changeViewOnClick(document)));
+    context.subscriptions.push(workspace.onDidOpenTextDocument((textDocument: TextDocument) => this.changeViewOnClick(textDocument)));
 
     if (this.actualFolderView) {
       this.updateStatusBarItem();
@@ -91,11 +98,12 @@ export class ViewsManager {
       const workspaceFolder = this.getWorkspaceFolderByName(this.actualFolderView!.name);
 
       if (workspaceFolder) {
-        folderView = { name: this.actualFolderView!.name, uri: workspaceFolder.uri, tabs: this.getOpenTabs() };
+        folderView = { name: this.actualFolderView!.name, uri: workspaceFolder.uri };
+        folderView.tabs = this.getOpenTabs(folderView);
         foldersViews.push(folderView);
       }
     } else {
-      folderView.tabs = this.getOpenTabs();
+      folderView.tabs = this.getOpenTabs(folderView);
     }
 
     this.context.workspaceState.update(consts.CONFIG_FOLDER_VIEWS, JSON.stringify(foldersViews));
@@ -105,20 +113,21 @@ export class ViewsManager {
     return workspace.workspaceFolders!.find(workspaceFolder => workspaceFolder.name === folderName);
   }
 
-  private getOpenTabs(): Tab[] {
+  private getOpenTabs(folderView: FolderView): Tab[] {
     let openTabs: Tab[] = [];
-    const saveTabsOfOtherFolders: boolean = this.config.get(consts.CONFIG_SAVE_TABS_OF_OTHER_FOLDERS) || true;
+    const saveTabsOfOtherFolders: boolean = this.config.get(consts.CONFIG_SAVE_TABS_OF_OTHER_FOLDERS, false);
 
     openTabs = window.tabGroups.all.flatMap(group =>
       group.tabs
         .map(tab => {
-          if (saveTabsOfOtherFolders) {
-            console.log(tab);
+          if (tab.input instanceof TabInputText) {
+            const filePath = tab.input.uri.path.substring(0, tab.input.uri.path.lastIndexOf('/'));
+
+            if (saveTabsOfOtherFolders || (!saveTabsOfOtherFolders && filePath === folderView.uri.path)) {
+              return { label: tab.label, uri: (tab.input as TabInputText).uri, active: tab.isActive } as Tab;
+            }
           }
 
-          if (tab.input instanceof TabInputText) {
-            return { label: tab.label, uri: (tab.input as TabInputText).uri } as Tab;
-          }
           return undefined;
         })
         .filter((value): value is Tab => value !== undefined)
@@ -152,8 +161,8 @@ export class ViewsManager {
 
       if (folderView && folderView.tabs) {
         folderView.tabs.forEach(tab => {
-          const uri = Uri.file(tab.uri.path);
-          commands.executeCommand('vscode.open', uri);
+          const uri = Uri.file(tab.uri.fsPath); // If not generate exception
+          commands.executeCommand('vscode.open', uri, { preview: false });
         });
       }
     }
@@ -163,7 +172,7 @@ export class ViewsManager {
     // Close all tabs
     commands.executeCommand('workbench.action.closeAllEditors');
 
-    if (this.config.get(consts.CONFIG_COLLAPSE_FOLDERS_ON_CHANGE)) {
+    if (this.config.get(consts.CONFIG_COLLAPSE_FOLDERS_ON_CHANGE, true)) {
       commands.executeCommand('workbench.files.action.collapseExplorerFolders');
     }
 
@@ -207,13 +216,22 @@ export class ViewsManager {
   }
 
   // TO-DO: Change view if click file of other folder
-  private changeViewOnClick(file: TextDocumentChangeEvent) {
-    const changeViewWhenClickFileOfOtherFolder: boolean = this.config.get(consts.CONFIG_CHANGE_VIEW_WHEN_CLICK_FILE_OF_OTHER_FOLDER) || true;
+  private changeViewOnClick(file: TextDocument) {
+    const changeViewWhenClickFileOfOtherFolder: boolean = this.config.get(consts.CONFIG_CHANGE_VIEW_WHEN_CLICK_FILE_OF_OTHER_FOLDER, true);
 
     if (changeViewWhenClickFileOfOtherFolder) {
-      if (file.document.uri.scheme === 'file') {
+      // if (file.document.uri.scheme === 'file') {
         console.log('file', file);
-      }
+      // }
     }
   }
+  // private changeViewOnClick(file: TextDocumentChangeEvent) {
+  //   const changeViewWhenClickFileOfOtherFolder: boolean = this.config.get(consts.CONFIG_CHANGE_VIEW_WHEN_CLICK_FILE_OF_OTHER_FOLDER, true);
+
+  //   if (changeViewWhenClickFileOfOtherFolder) {
+  //     if (file.document.uri.scheme === 'file') {
+  //       console.log('file', file);
+  //     }
+  //   }
+  // }
 }
