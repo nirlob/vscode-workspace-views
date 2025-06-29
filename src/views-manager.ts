@@ -5,9 +5,6 @@ import {
   StatusBarAlignment,
   StatusBarItem,
   TabInputText,
-  TextDocument,
-  TextDocumentChangeEvent,
-  TextEditor,
   Uri,
   window,
   workspace,
@@ -56,9 +53,6 @@ export class ViewsManager {
         }
       })
     );
-
-    // context.subscriptions.push(workspace.onDidChangeTextDocument((document: TextDocumentChangeEvent) => this.changeViewOnClick(document)));
-    context.subscriptions.push(workspace.onDidOpenTextDocument((textDocument: TextDocument) => this.changeViewOnClick(textDocument)));
 
     if (this.actualFolderView) {
       this.updateStatusBarItem();
@@ -216,22 +210,4 @@ export class ViewsManager {
   }
 
   // TO-DO: Change view if click file of other folder
-  private changeViewOnClick(file: TextDocument) {
-    const changeViewWhenClickFileOfOtherFolder: boolean = this.config.get(consts.CONFIG_CHANGE_VIEW_WHEN_CLICK_FILE_OF_OTHER_FOLDER, true);
-
-    if (changeViewWhenClickFileOfOtherFolder) {
-      // if (file.document.uri.scheme === 'file') {
-        console.log('file', file);
-      // }
-    }
-  }
-  // private changeViewOnClick(file: TextDocumentChangeEvent) {
-  //   const changeViewWhenClickFileOfOtherFolder: boolean = this.config.get(consts.CONFIG_CHANGE_VIEW_WHEN_CLICK_FILE_OF_OTHER_FOLDER, true);
-
-  //   if (changeViewWhenClickFileOfOtherFolder) {
-  //     if (file.document.uri.scheme === 'file') {
-  //       console.log('file', file);
-  //     }
-  //   }
-  // }
 }
